@@ -1,0 +1,35 @@
+# BDJ Consulting — Sécurité
+
+# Pas de listing de répertoire
+Options -Indexes
+
+# Headers de sécurité
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com https://images.pexels.com; font-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'self'; object-src 'none'; upgrade-insecure-requests"
+  # À activer uniquement si le site est servi en HTTPS :
+  # Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# Dossier de configuration privé : jamais servi (appliqué en plus de sa propre .htaccess)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^config/ - [F,L]
+</IfModule>
+
+# Fichiers sensibles : pas d'accès direct
+<FilesMatch "\.(md|log|sql|bak|old|env)$">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "^(\.htaccess|\.htpasswd|\.git|\.env)">
+  Require all denied
+</FilesMatch>
+
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript application/json image/svg+xml
+</IfModule>
