@@ -1,7 +1,7 @@
 # BDJ Consulting — Site officiel (V6.1.5)
 
 Site vitrine statique du centre de relation client **BDJ Consulting**, basé à Abidjan (Côte d'Ivoire).
-9 pages HTML + 2 handlers PHP (`send_contact.php`, `send_recruitment.php`), sans framework.
+11 pages HTML + 2 handlers PHP (`send_contact.php`, `send_recruitment.php`), sans framework.
 
 Visuel : https://www.bdj-consulting.net/
 
@@ -10,7 +10,7 @@ Visuel : https://www.bdj-consulting.net/
 ## Fonctionnalités
 
 - **7 axes de contenu** : Accueil, Nos solutions, Nos secteurs, À propos, Notre savoir-faire, Carrières, Contact + mentions légales et politique de confidentialité
-- **Widget WhatsApp** : bouton flottant, badge, réponses rapides, horaires, message pré-rempli (`wa.me/2250102440707`)
+- **Widget WhatsApp** : bouton flottant, badge, horaires, assistant qui répond aux questions courantes avant tout transfert vers un conseiller (`wa.me/2250102440707`)
 - **Réseaux sociaux** en pied de page : Facebook, Instagram, X, TikTok, LinkedIn, YouTube (`bdjconsulting`)
 - **Formulaires opérationnels** :
   - Contact → 2 destinataires
@@ -22,7 +22,7 @@ Visuel : https://www.bdj-consulting.net/
 ## Structure
 
 ```
-├── *.html                  # 9 pages du site
+├── *.html                  # 11 pages du site
 ├── assets/
 │   ├── css/style.css
 │   ├── js/main.js          # nav, carrousel, widgets (WhatsApp, cookies, anti-spam ts)
@@ -73,10 +73,40 @@ Brancher IONOS :
 6. Valider HTTPS + headers (avec CSP) + Google Business Profile (NAP identique)
 7. Soumettre sitemap.xml dans Google Search Console
 
+## CI/CD — déploiement automatique (GitHub Actions)
+
+Le workflow `.github/workflows/deploy.yml` se déclenche sur chaque **push sur `main`** (ou manuellement via
+*l'onglet Actions → Run workflow*). Deux jobs :
+
+1. **Vérifications** (`check`) : lint PHP (`php -l`), lint JS (`node --check`), validation des blocs
+   JSON-LD et du sitemap (`.github/scripts/validate.mjs`).
+2. **Déploiement FTP/FTPS** vers l'hébergement IONOS (`deploy`) — ne démarre que si les vérifications passent.
+
+### Secrets à créer (GitHub → Settings → Secrets and variables → Actions)
+
+| Secret | Valeur |
+| --- | --- |
+| `FTP_HOST` | Hôte FTP IONOS (ex. `ftp://...` ou IP fournie par IONOS) |
+| `FTP_USER` | Identifiant FTP |
+| `FTP_PASSWORD` | Mot de passe FTP |
+| `FTP_SERVER_DIR` | Dossier racine du domaine sur le serveur (ex. `/`, `/htdocs` ou `/bdj-consulting.net`) |
+
+### Fichiers exclus du déploiement (jamais écrasés ni supprimés)
+
+- `config/config.php`, `config/mail_config.php` → **à déposer une fois à la main** sur le serveur (SMTP, destinataires, secrets)
+- `bdj-deploy.zip`, `.git`, `.github`
+
+### Notes
+
+- Premier déploiement : l'outil supprime les fichiers présents sur le serveur qui n'existent pas dans le dépôt,
+  sauf les exclus ci-dessus — penser à activer HTTPS et PHP 8.1+ dans le panneau IONOS avant.
+- Si IONOS refuse `ftps`, passer le champ `protocol: ftp` (ou `sftp` si votre offre IONOS fournit SSH/SFTP) dans le workflow.
+
 ## Commandes de vérification
 
 ```bash
 php -l config/mail_helper.php send_contact.php send_recruitment.php
+node .github/scripts/validate.mjs
 ```
 
 ---

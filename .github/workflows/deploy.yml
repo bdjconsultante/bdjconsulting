@@ -1,0 +1,59 @@
+name: CI/CD — Déploiement automatique
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: bdj-deploy-main
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Vérifications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Lint PHP
+        run: find . -maxdepth 2 -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l
+
+      - name: Lint JS
+        run: |
+          node --check assets/js/main.js
+          node --check assets/js/tracking.js
+
+      - name: Valider HTML / JSON-LD / sitemap
+        run: node .github/scripts/validate.mjs
+
+  deploy:
+    name: Déploiement FTP (IONOS)
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          protocol: ftps
+          timeout: 180000
+          exclude: |
+            **/.git*
+            **/.github*
+            **/config/config.php
+            **/config/mail_config.php
+            **/bdj-deploy.zip
