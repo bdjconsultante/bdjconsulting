@@ -22,8 +22,8 @@ Cette version reprend volontairement la V6.1.5 comme base visuelle et fonctionne
   - e-mail
   - destinataires du formulaire Contact
   - destinataires du recrutement
-  - paramètres Postmark
+  - paramètres SMTP (IONOS)
   - règles de téléchargement des CV
 
 ## Prochaine étape
-Le fichier `config.php` est prêt à être utilisé par les scripts PHP lors du branchement final de PHPMailer + Postmark.
+Le fichier `config.php` est prêt à être utilisé par les scripts PHP lors du branchement final de PHPMailer + SMTP IONOS.

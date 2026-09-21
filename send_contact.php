@@ -4,7 +4,6 @@ declare(strict_types=1);
 $config = require __DIR__ . '/config/mail_config.php';
 require __DIR__ . '/config/mail_helper.php';
 $recipients = $config['contact_recipients'];
-$fromEmail = $config['from'];
 
 function clean_contact(string $v): string {
     return trim(preg_replace('/[\r\n\x00]+/', ' ', strip_tags($v)));
@@ -32,6 +31,7 @@ $message = clean_contact($_POST['message'] ?? '');
 
 $errors = [];
 if (is_bot_request()) $errors[] = 'Requête invalide.';
+if (!bdj_rate_limit('contact:' . ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'))) $errors[] = 'Trop de demandes envoyées. Merci de réessayer dans quelques minutes.';
 if (!$nom) $errors[] = 'Nom obligatoire.';
 if (!$email) $errors[] = 'Adresse e-mail invalide.';
 if (!$message) $errors[] = 'Message obligatoire.';

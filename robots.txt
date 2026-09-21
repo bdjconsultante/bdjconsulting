@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.bdj-consulting.ci/sitemap.xml
+Sitemap: https://www.bdj-consulting.net/sitemap.xml

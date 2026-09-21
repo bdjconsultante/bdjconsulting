@@ -8,7 +8,7 @@ Desktop.ini
 SESSION_NOTES.md
 
 # Config secrets (ne JAMAIS versionner)
-# contient le futur token SMTP Postmark + destinataires internes
+# contient le mot de passe SMTP IONOS + destinataires internes
 config/config.php
 config/mail_config.php
 
@@ -16,3 +16,6 @@ config/mail_config.php
 vendor/
 composer.lock
 *.local
+
+# Archive de déploiement
+bdj-deploy.zip

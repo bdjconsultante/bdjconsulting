@@ -4,7 +4,6 @@ declare(strict_types=1);
 $mailConfig = require __DIR__ . '/config/mail_config.php';
 require __DIR__ . '/config/mail_helper.php';
 $recruitmentRecipients = $mailConfig['recruitment_recipients'];
-$fromEmail = $mailConfig['from'];
 
 function clean(string $v): string { return trim(preg_replace('/[\r\n\x00]+/', ' ', strip_tags($v))); }
 
@@ -33,6 +32,7 @@ $consentement=isset($_POST['consentement']) && $_POST['consentement']==='1';
 
 $errors=[];
 if(is_bot_request()) $errors[]='Requête invalide.';
+if(!bdj_rate_limit('recrutement:'.($_SERVER['REMOTE_ADDR']??'0.0.0.0'))) $errors[]='Trop de candidatures envoyées. Merci de réessayer dans quelques minutes.';
 $maxFileSize = (int)$mailConfig['max_cv_size'];
 $allowedExtensions = ['pdf','doc','docx'];
 $allowedMime = [
